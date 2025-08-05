@@ -10,11 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.backend.application.IServiceService;
+import com.backend.application.dto.CreateSongListRequest;
+import com.backend.application.dto.MusicianAssignment;
+import com.backend.application.dto.UpdateAssingmentRequest;
 import com.backend.domain.model.MusiciansList;
 import com.backend.domain.model.ServiceModel;
 import com.backend.domain.model.SongsModel;
 import com.backend.domain.model.UserModel;
-import com.backend.domain.model.UserServiceRole;
+
 import com.backend.domain.port.ServicesUseCases;
 import com.backend.domain.port.UserUseCases;
 
@@ -142,23 +145,23 @@ public class ServiceServiceImpl implements IServiceService {
         return servicesUseCases.updateService(service);
     }
     
-    @Override
-    public ServiceModel assignMusiciansToService(String serviceId, List<String> musicianIds, List<String> instruments) {
+        @Override
+        public ServiceModel assignMusiciansToService(String serviceId, List<MusicianAssignment> musicianAssignments) {
         validateServiceExists(serviceId);
-        validateMusicianAssignment(musicianIds, instruments);
+       
         
         ServiceModel service = servicesUseCases.getServiceById(serviceId);
         List<MusiciansList> musiciansList = new ArrayList<>();
         
-        for (int i = 0; i < musicianIds.size(); i++) {
-            UserModel musician = userUseCases.getUserById(musicianIds.get(i));
+        for (MusicianAssignment assignment : musicianAssignments) {
+            UserModel musician = userUseCases.getUserById(assignment.getMusicianId());
             if (musician == null) {
-                throw new IllegalArgumentException("Músico no encontrado: " + musicianIds.get(i));
+                throw new IllegalArgumentException("Músico no encontrado: " + assignment.getMusicianId());
             }
             
             MusiciansList musicianAssignment = new MusiciansList();
             musicianAssignment.setMusician(musician);
-            musicianAssignment.setInstrument(instruments.get(i));
+            musicianAssignment.setInstrument(assignment.getInstrument());
             musiciansList.add(musicianAssignment);
         }
         
@@ -167,51 +170,76 @@ public class ServiceServiceImpl implements IServiceService {
     }
     
     @Override
-    public ServiceModel updateServiceAssignments(String serviceId, List<String> directorIds, 
-                                               List<String> musicianIds, List<String> instruments) {
+    public ServiceModel updateServiceAssignments(String serviceId, UpdateAssingmentRequest request) {
         validateServiceExists(serviceId);
         
         ServiceModel service = servicesUseCases.getServiceById(serviceId);
         
         // Actualizar directores
-        if (directorIds != null && !directorIds.isEmpty()) {
-            service = assignDirectorsToService(serviceId, directorIds);
+        if (request.getDirectorIds() != null && !request.getDirectorIds().isEmpty()) {
+            service = assignDirectorsToService(serviceId, request.getDirectorIds());
         }
         
         // Actualizar músicos
-        if (musicianIds != null && !musicianIds.isEmpty()) {
-            service = assignMusiciansToService(serviceId, musicianIds, instruments);
+        if (request.getMusiciansList() != null && !request.getMusiciansList().isEmpty()) {
+            service = assignMusiciansToService(serviceId, request.getMusiciansList());
         }
         
         return service;
     }
     
+    @Override
+    public ServiceModel updateService(ServiceModel service) {
+        validateServiceExists(service.getId());
+        
+        // Obtener el servicio existente
+        ServiceModel existingService = servicesUseCases.getServiceById(service.getId());
+        
+        // Actualizar solo los campos que no son null
+        if (service.getServiceDate() != null) {
+            existingService.setServiceDate(service.getServiceDate());
+        }
+        if (service.getPracticeDate() != null) {
+            existingService.setPracticeDate(service.getPracticeDate());
+        }
+        if (service.getLocation() != null && !service.getLocation().trim().isEmpty()) {
+            existingService.setLocation(service.getLocation());
+        }
+        if (service.getDirectors() != null) {
+            existingService.setDirectors(service.getDirectors());
+        }
+        if (service.getMusiciansList() != null) {
+            existingService.setMusiciansList(service.getMusiciansList());
+        }
+        if (service.getSongsList() != null) {
+            existingService.setSongsList(service.getSongsList());
+        }
+        
+        return servicesUseCases.updateService(existingService);
+    }
+    
     // Historias de usuario del Director
     @Override
-    public ServiceModel createSongListForService(String serviceId, String directorId, 
-                                               List<String> songNames, List<String> composers, 
-                                               List<String> musicalLinks, List<String> tonalities) {
+    public ServiceModel createSongListForService(String serviceId, String directorId, List<CreateSongListRequest> songs) {
         validateServiceExists(serviceId);
         validateDirectorPermission(serviceId, directorId);
-        validateSongListData(songNames, composers, musicalLinks, tonalities);
+        validateSongListData(songs);
         
         ServiceModel service = servicesUseCases.getServiceById(serviceId);
-        List<SongsModel> songsList = createSongsList(songNames, composers, musicalLinks, tonalities);
+        List<SongsModel> songsList = createSongsList(songs);
         
         service.setSongsList(songsList);
         return servicesUseCases.updateService(service);
     }
     
     @Override
-    public ServiceModel updateSongListForService(String serviceId, String directorId, 
-                                               List<String> songNames, List<String> composers, 
-                                               List<String> musicalLinks, List<String> tonalities) {
+    public ServiceModel updateSongListForService(String serviceId, String directorId, List<CreateSongListRequest> songs) {
         validateServiceExists(serviceId);
         validateDirectorPermission(serviceId, directorId);
-        validateSongListData(songNames, composers, musicalLinks, tonalities);
+        validateSongListData(songs);
         
         ServiceModel service = servicesUseCases.getServiceById(serviceId);
-        List<SongsModel> songsList = createSongsList(songNames, composers, musicalLinks, tonalities);
+        List<SongsModel> songsList = createSongsList(songs);
         
         service.setSongsList(songsList);
         return servicesUseCases.updateService(service);
@@ -370,14 +398,7 @@ public class ServiceServiceImpl implements IServiceService {
         }
     }
     
-    private void validateMusicianAssignment(List<String> musicianIds, List<String> instruments) {
-        if (musicianIds == null || instruments == null) {
-            throw new IllegalArgumentException("Listas de músicos e instrumentos no pueden ser null");
-        }
-        if (musicianIds.size() != instruments.size()) {
-            throw new IllegalArgumentException("El número de músicos debe coincidir con el número de instrumentos");
-        }
-    }
+   
     
     private void validateDirectorPermission(String serviceId, String directorId) {
         if (!isUserDirectorOfService(directorId, serviceId)) {
@@ -385,29 +406,22 @@ public class ServiceServiceImpl implements IServiceService {
         }
     }
     
-    private void validateSongListData(List<String> songNames, List<String> composers, 
-                                    List<String> musicalLinks, List<String> tonalities) {
-        if (songNames == null || composers == null || musicalLinks == null || tonalities == null) {
-            throw new IllegalArgumentException("Todos los parámetros de la lista de canciones son obligatorios");
-        }
-        
-        int size = songNames.size();
-        if (composers.size() != size || musicalLinks.size() != size || tonalities.size() != size) {
-            throw new IllegalArgumentException("Todas las listas deben tener el mismo tamaño");
+    private void validateSongListData(List<CreateSongListRequest> songs) {
+        if (songs == null || songs.isEmpty()) {
+            throw new IllegalArgumentException("La lista de canciones no puede ser null o vacía");
         }
     }
     
-    private List<SongsModel> createSongsList(List<String> songNames, List<String> composers, 
-                                           List<String> musicalLinks, List<String> tonalities) {
+    private List<SongsModel> createSongsList(List<CreateSongListRequest> songs) {
         List<SongsModel> songsList = new ArrayList<>();
         
-        for (int i = 0; i < songNames.size(); i++) {
-            SongsModel song = new SongsModel();
-            song.setName(songNames.get(i));
-            song.setArtist(composers.get(i));
-            song.setYoutubeLink(musicalLinks.get(i));
-            song.setTone(tonalities.get(i));
-            songsList.add(song);
+        for (CreateSongListRequest song : songs) {
+            SongsModel songModel = new SongsModel();
+            songModel.setName(song.getSongName());
+            songModel.setArtist(song.getComposer());
+            songModel.setYoutubeLink(song.getLink());
+            songModel.setTone(song.getTonality());
+            songsList.add(songModel);
         }
         
         return songsList;

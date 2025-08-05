@@ -20,22 +20,18 @@ public class DirectorController {
     
     private final IServiceService serviceService;
     
-    
-    
     @PostMapping("/{directorId}/services/{serviceId}/songs")
     public ResponseEntity<ServiceModel> createSongList(
             @PathVariable String directorId,
             @PathVariable String serviceId,
-            @RequestBody List<CreateSongListRequest> request) {
+            @RequestBody List<CreateSongListRequest> songs) {
         try {
             // Verificar que el director tiene permisos sobre este servicio
             if (!serviceService.isUserDirectorOfService(directorId, serviceId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
             
-            ServiceModel updatedService = serviceService.createSongListForService(
-                serviceId, directorId, request.getSongNames(), request.getComposers(),
-                request.getMusicalLinks(), request.getTonalities());
+            ServiceModel updatedService = serviceService.createSongListForService(serviceId, directorId, songs);
             return ResponseEntity.ok(updatedService);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
@@ -46,21 +42,36 @@ public class DirectorController {
     public ResponseEntity<ServiceModel> updateSongList(
             @PathVariable String directorId,
             @PathVariable String serviceId,
-            @RequestBody List<CreateSongListRequest> request) {
+            @RequestBody List<CreateSongListRequest> songs) {
         try {
             // Verificar que el director tiene permisos sobre este servicio
             if (!serviceService.isUserDirectorOfService(directorId, serviceId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
             
-            ServiceModel updatedService = serviceService.updateSongListForService(
-                serviceId, directorId, request.getSongNames(), request.getComposers(),
-                request.getMusicalLinks(), request.getTonalities());
+            ServiceModel updatedService = serviceService.updateSongListForService(serviceId, directorId, songs);
             return ResponseEntity.ok(updatedService);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
     }
     
-   
+    // Clases de response
+    
+    public static class DirectorPermissionsResponse {
+        private String directorId;
+        private String serviceId;
+        private boolean isDirectorOfService;
+        private boolean isAdmin;
+        
+        // Getters y setters
+        public String getDirectorId() { return directorId; }
+        public void setDirectorId(String directorId) { this.directorId = directorId; }
+        public String getServiceId() { return serviceId; }
+        public void setServiceId(String serviceId) { this.serviceId = serviceId; }
+        public boolean isDirectorOfService() { return isDirectorOfService; }
+        public void setIsDirectorOfService(boolean directorOfService) { isDirectorOfService = directorOfService; }
+        public boolean isAdmin() { return isAdmin; }
+        public void setIsAdmin(boolean admin) { isAdmin = admin; }
+    }
 } 

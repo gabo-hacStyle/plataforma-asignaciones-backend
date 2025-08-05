@@ -55,10 +55,30 @@ public class UserServiceImpl implements IUserService {
     
     @Override
     public UserModel updateUser(UserModel user) {
-        validateUserData(user);
+        validateUserId(user.getId());
         validateUserExists(user.getId());
         
-        return userUseCases.updateUser(user);
+        // Obtener el usuario existente
+        UserModel existingUser = userUseCases.getUserById(user.getId());
+        
+        // Actualizar solo los campos que no son null
+        if (user.getName() != null && !user.getName().trim().isEmpty()) {
+            existingUser.setName(user.getName());
+        }
+        if (user.getEmail() != null && !user.getEmail().trim().isEmpty()) {
+            if (!isValidEmail(user.getEmail())) {
+                throw new IllegalArgumentException("Formato de email inválido");
+            }
+            existingUser.setEmail(user.getEmail());
+        }
+        if (user.getPhoneNumber() != null && !user.getPhoneNumber().trim().isEmpty()) {
+            existingUser.setPhoneNumber(user.getPhoneNumber());
+        }
+        if (user.getRole() != null) {
+            existingUser.setRole(user.getRole());
+        }
+        
+        return userUseCases.updateUser(existingUser);
     }
     
     @Override

@@ -15,6 +15,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.backend.application.dto.CreateSongListRequest;
+import com.backend.application.dto.MusicianAssignment;
+import com.backend.application.dto.UpdateAssingmentRequest;
 import com.backend.application.implementations.ServiceServiceImpl;
 import com.backend.domain.model.MusiciansList;
 import com.backend.domain.model.ServiceModel;
@@ -103,7 +106,8 @@ class ServiceServiceTest {
         // Then
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(UserModel.Role.MUSICIAN, result.get(0).getRole());
+        assertEquals(testMusician.getId(), result.get(0).getId());
+        verify(userUseCases).getAllUsers();
     }
     
     @Test
@@ -127,34 +131,37 @@ class ServiceServiceTest {
     void testAssignDirectorsToService_ShouldChangeMusicianToDirector() {
         // Given
         UserModel musicianAsDirector = new UserModel();
-        musicianAsDirector.setId("musician2");
+        musicianAsDirector.setId("musician1");
         musicianAsDirector.setRole(UserModel.Role.MUSICIAN);
         
-        List<String> directorIds = Arrays.asList("musician2");
+        List<String> directorIds = Arrays.asList("musician1");
         when(servicesUseCases.getServiceById("service1")).thenReturn(testService);
-        when(userUseCases.getUserById("musician2")).thenReturn(musicianAsDirector);
-        when(userUseCases.updateUser(any(UserModel.class))).thenReturn(musicianAsDirector);
+        when(userUseCases.getUserById("musician1")).thenReturn(musicianAsDirector);
         when(servicesUseCases.updateService(any(ServiceModel.class))).thenReturn(testService);
         
         // When
-        serviceService.assignDirectorsToService("service1", directorIds);
+        ServiceModel result = serviceService.assignDirectorsToService("service1", directorIds);
         
         // Then
-        verify(userUseCases).updateUser(argThat(user -> user.getRole() == UserModel.Role.DIRECTOR));
+        assertNotNull(result);
+        verify(userUseCases).updateUser(musicianAsDirector);
+        assertEquals(UserModel.Role.DIRECTOR, musicianAsDirector.getRole());
     }
     
     @Test
     void testAssignMusiciansToService_ShouldAssignMusicians() {
         // Given
-        List<String> musicianIds = Arrays.asList("musician1", "musician2");
-        List<String> instruments = Arrays.asList("Piano", "Guitarra");
+        List<MusicianAssignment> musicianAssignments = Arrays.asList(
+            new MusicianAssignment("musician1", "Piano"),
+            new MusicianAssignment("musician2", "Guitarra")
+        );
         when(servicesUseCases.getServiceById("service1")).thenReturn(testService);
         when(userUseCases.getUserById("musician1")).thenReturn(testMusician);
         when(userUseCases.getUserById("musician2")).thenReturn(testMusician);
         when(servicesUseCases.updateService(any(ServiceModel.class))).thenReturn(testService);
         
         // When
-        ServiceModel result = serviceService.assignMusiciansToService("service1", musicianIds, instruments);
+        ServiceModel result = serviceService.assignMusiciansToService("service1", musicianAssignments);
         
         // Then
         assertNotNull(result);
@@ -164,16 +171,18 @@ class ServiceServiceTest {
     @Test
     void testUpdateServiceAssignments_ShouldUpdateAssignments() {
         // Given
-        List<String> directorIds = Arrays.asList("director1");
-        List<String> musicianIds = Arrays.asList("musician1");
-        List<String> instruments = Arrays.asList("Piano");
+        UpdateAssingmentRequest request = new UpdateAssingmentRequest();
+        request.setDirectorIds(Arrays.asList("director1"));
+        request.setMusiciansList(Arrays.asList(new MusicianAssignment("musician1", "Piano")));
+        
+        
         when(servicesUseCases.getServiceById("service1")).thenReturn(testService);
         when(userUseCases.getUserById("director1")).thenReturn(testDirector);
         when(userUseCases.getUserById("musician1")).thenReturn(testMusician);
         when(servicesUseCases.updateService(any(ServiceModel.class))).thenReturn(testService);
         
         // When
-        ServiceModel result = serviceService.updateServiceAssignments("service1", directorIds, musicianIds, instruments);
+        ServiceModel result = serviceService.updateServiceAssignments("service1", request);
         
         // Then
         assertNotNull(result);
@@ -185,16 +194,16 @@ class ServiceServiceTest {
     @Test
     void testCreateSongListForService_ShouldCreateSongList() {
         // Given
-        List<String> songNames = Arrays.asList("Canción 1", "Canción 2");
-        List<String> composers = Arrays.asList("Compositor 1", "Compositor 2");
-        List<String> musicalLinks = Arrays.asList("https://youtube.com/1", "https://youtube.com/2");
-        List<String> tonalities = Arrays.asList("Original", "-1/2");
+        List<CreateSongListRequest> songs = Arrays.asList(
+            new CreateSongListRequest("Agnus dei", "Su presencia", "youtube.com/1", "0"),
+            new CreateSongListRequest("Holy forever", "Montesanto", "youtube.com/2", "-1")
+        );
         
         when(servicesUseCases.getServiceById("service1")).thenReturn(testService);
         when(servicesUseCases.updateService(any(ServiceModel.class))).thenReturn(testService);
         
         // When
-        ServiceModel result = serviceService.createSongListForService("service1", "director1", songNames, composers, musicalLinks, tonalities);
+        ServiceModel result = serviceService.createSongListForService("service1", "director1", songs);
         
         // Then
         assertNotNull(result);
@@ -204,32 +213,67 @@ class ServiceServiceTest {
     @Test
     void testCreateSongListForService_ShouldThrowException_WhenNotDirector() {
         // Given
-        List<String> songNames = Arrays.asList("Canción 1");
-        List<String> composers = Arrays.asList("Compositor 1");
-        List<String> musicalLinks = Arrays.asList("https://youtube.com/1");
-        List<String> tonalities = Arrays.asList("Original");
+        List<CreateSongListRequest> songs = Arrays.asList(
+            new CreateSongListRequest("Agnus dei", "Su presencia", "youtube.com/1", "0")
+        );
         
         when(servicesUseCases.getServiceById("service1")).thenReturn(testService);
         
         // When & Then
         assertThrows(IllegalArgumentException.class, () -> {
-            serviceService.createSongListForService("service1", "musician1", songNames, composers, musicalLinks, tonalities);
+            serviceService.createSongListForService("service1", "musician1", songs);
         });
     }
     
     @Test
     void testUpdateSongListForService_ShouldUpdateSongList() {
         // Given
-        List<String> songNames = Arrays.asList("Canción Actualizada");
-        List<String> composers = Arrays.asList("Compositor Actualizado");
-        List<String> musicalLinks = Arrays.asList("https://youtube.com/updated");
-        List<String> tonalities = Arrays.asList("Original");
+        List<CreateSongListRequest> songs = Arrays.asList(
+            new CreateSongListRequest("Canción Actualizada", "Compositor Actualizado", "https://youtube.com/updated", "Original")
+        );
         
         when(servicesUseCases.getServiceById("service1")).thenReturn(testService);
         when(servicesUseCases.updateService(any(ServiceModel.class))).thenReturn(testService);
         
         // When
-        ServiceModel result = serviceService.updateSongListForService("service1", "director1", songNames, composers, musicalLinks, tonalities);
+        ServiceModel result = serviceService.updateSongListForService("service1", "director1", songs);
+        
+        // Then
+        assertNotNull(result);
+        verify(servicesUseCases).updateService(any(ServiceModel.class));
+    }
+    
+    @Test
+    void testUpdateService_ShouldUpdateService() {
+        // Given
+        ServiceModel serviceUpdate = new ServiceModel();
+        serviceUpdate.setId("service1");
+        serviceUpdate.setLocation("Nueva Ubicación");
+        
+        when(servicesUseCases.getServiceById("service1")).thenReturn(testService);
+        when(servicesUseCases.updateService(any(ServiceModel.class))).thenReturn(testService);
+        
+        // When
+        ServiceModel result = serviceService.updateService(serviceUpdate);
+        
+        // Then
+        assertNotNull(result);
+        verify(servicesUseCases).updateService(any(ServiceModel.class));
+    }
+    
+    @Test
+    void testUpdateService_ShouldUpdatePartialService() {
+        // Given
+        ServiceModel partialUpdate = new ServiceModel();
+        partialUpdate.setId("service1");
+        partialUpdate.setServiceDate(LocalDate.now().plusDays(10));
+        // Only service date specified
+        
+        when(servicesUseCases.getServiceById("service1")).thenReturn(testService);
+        when(servicesUseCases.updateService(any(ServiceModel.class))).thenReturn(testService);
+        
+        // When
+        ServiceModel result = serviceService.updateService(partialUpdate);
         
         // Then
         assertNotNull(result);

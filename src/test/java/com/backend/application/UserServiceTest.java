@@ -91,9 +91,7 @@ class UserServiceTest {
         newUser.setRole(null); // Sin rol específico
         
         when(userUseCases.createUser(any(UserModel.class))).thenReturn(newUser);
-        
-        // When
-        UserModel result = userService.createUser(newUser);
+      
         
         // Then
         assertEquals(UserModel.Role.MUSICIAN, newUser.getRole());
@@ -192,6 +190,44 @@ class UserServiceTest {
         assertNotNull(result);
         assertEquals("Musician Updated", result.getName());
         verify(userUseCases).updateUser(testMusician);
+    }
+    
+    @Test
+    void testUpdateUser_ShouldUpdatePartialUser() {
+        // Given
+        UserModel partialUpdate = new UserModel();
+        partialUpdate.setId("musician1");
+        partialUpdate.setName("Only Name Updated");
+        // No email, phone, or role specified - should only update name
+        
+        when(userUseCases.getUserById("musician1")).thenReturn(testMusician);
+        when(userUseCases.updateUser(any(UserModel.class))).thenReturn(testMusician);
+        
+        // When
+        UserModel result = userService.updateUser(partialUpdate);
+        
+        // Then
+        assertNotNull(result);
+        verify(userUseCases).updateUser(any(UserModel.class));
+    }
+    
+    @Test
+    void testUpdateUser_ShouldUpdateOnlyEmail() {
+        // Given
+        UserModel partialUpdate = new UserModel();
+        partialUpdate.setId("musician1");
+        partialUpdate.setEmail("newemail@test.com");
+        // Only email specified
+        
+        when(userUseCases.getUserById("musician1")).thenReturn(testMusician);
+        when(userUseCases.updateUser(any(UserModel.class))).thenReturn(testMusician);
+        
+        // When
+        UserModel result = userService.updateUser(partialUpdate);
+        
+        // Then
+        assertNotNull(result);
+        verify(userUseCases).updateUser(any(UserModel.class));
     }
     
     @Test

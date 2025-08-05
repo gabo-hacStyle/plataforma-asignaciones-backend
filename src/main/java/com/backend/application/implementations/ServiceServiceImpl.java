@@ -319,30 +319,8 @@ public class ServiceServiceImpl implements IServiceService {
                 .anyMatch(director -> director.getId().equals(userId));
     }
     
-    @Override
-    public boolean isUserMusicianOfService(String userId, String serviceId) {
-        if (userId == null || serviceId == null) {
-            return false;
-        }
-        
-        ServiceModel service = servicesUseCases.getServiceById(serviceId);
-        if (service == null || service.getMusiciansList() == null) {
-            return false;
-        }
-        
-        return service.getMusiciansList().stream()
-                .anyMatch(musician -> musician.getMusician().getId().equals(userId));
-    }
     
-    @Override
-    public boolean isUserAdmin(String userId) {
-        if (userId == null) {
-            return false;
-        }
-        
-        UserModel user = userUseCases.getUserById(userId);
-        return user != null && user.getRole() == UserModel.Role.ADMIN;
-    }
+    
     
     // Eliminación automática (historia del sistema)
     @Override

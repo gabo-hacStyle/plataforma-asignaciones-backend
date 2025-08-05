@@ -408,44 +408,7 @@ class ServiceServiceTest {
         assertFalse(result);
     }
     
-    @Test
-    void testIsUserMusicianOfService_ShouldReturnTrue_WhenUserIsMusician() {
-        // Given
-        when(servicesUseCases.getServiceById("service1")).thenReturn(testService);
-        
-        // When
-        boolean result = serviceService.isUserMusicianOfService("musician1", "service1");
-        
-        // Then
-        assertTrue(result);
-    }
-    
-    @Test
-    void testIsUserMusicianOfService_ShouldReturnFalse_WhenUserIsNotMusician() {
-        // Given
-        when(servicesUseCases.getServiceById("service1")).thenReturn(testService);
-        
-        // When
-        boolean result = serviceService.isUserMusicianOfService("director1", "service1");
-        
-        // Then
-        assertFalse(result);
-    }
-    
-    @Test
-    void testIsUserAdmin_ShouldReturnTrue_WhenUserIsAdmin() {
-        // Given
-        UserModel admin = new UserModel();
-        admin.setId("admin1");
-        admin.setRole(UserModel.Role.ADMIN);
-        when(userUseCases.getUserById("admin1")).thenReturn(admin);
-        
-        // When
-        boolean result = serviceService.isUserAdmin("admin1");
-        
-        // Then
-        assertTrue(result);
-    }
+   
     
     @Test
     void testDeleteExpiredServices_ShouldDeleteExpiredServices() {

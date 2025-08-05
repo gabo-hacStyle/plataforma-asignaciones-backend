@@ -37,8 +37,7 @@ public interface IServiceService {
     
     // Validaciones de roles dinámicos
     boolean isUserDirectorOfService(String userId, String serviceId);
-    boolean isUserMusicianOfService(String userId, String serviceId);
-    boolean isUserAdmin(String userId);
+    
     
     // Eliminación automática (historia del sistema)
     void deleteExpiredServices();

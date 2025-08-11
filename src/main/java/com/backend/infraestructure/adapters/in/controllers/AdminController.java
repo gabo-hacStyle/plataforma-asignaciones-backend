@@ -21,7 +21,11 @@ public class AdminController {
     
     private final IServiceService serviceService;
     
-    // Endpoint simplificado para crear servicios con asignaciones completas
+    // Endpoint de prueba para verificar autorización
+    @GetMapping("/test")
+    public ResponseEntity<String> testAdminAccess() {
+        return ResponseEntity.ok("¡Acceso autorizado! Eres un administrador.");
+    }
     
     @PostMapping
     public ResponseEntity<ServiceModel> createServiceWithAssignments(@RequestBody CreateServiceRequest request) {

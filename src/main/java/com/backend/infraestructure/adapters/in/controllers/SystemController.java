@@ -4,6 +4,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.backend.application.IServiceService;
+import com.backend.infraestructure.adapters.in.controllers.dto.SystemHealthResponse;
+import com.backend.infraestructure.adapters.in.controllers.dto.SystemOperationResponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -83,26 +85,9 @@ public class SystemController {
     }
     
     // Clases de response
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class SystemOperationResponse {
-        private String operation;
-        private String status;
-        private String message;
-    }
+    
 
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class SystemHealthResponse {
-        private String status;
-        private String timestamp;
-        private String version;
-        private String error;
-        
-        
-    }
+    
     
     @Data
     @AllArgsConstructor

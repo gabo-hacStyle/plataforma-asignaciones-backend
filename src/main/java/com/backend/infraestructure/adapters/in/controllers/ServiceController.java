@@ -79,39 +79,39 @@ public class ServiceController {
    //     return ResponseEntity.noContent().build();
    // }
    // 
-    
-    // Clases de request para encapsular datos
+   
+   // Clases de request para encapsular datos
 
    public static class CreateServiceWithAssignmentsRequest {
-       private LocalDate serviceDate;
-       private LocalDate practiceDate;
-       private String location;
-       private List<String> directorIds;
-       private List<MusicianAssignment> musicianAssignments;
-       
-       // Getters y setters
-       public LocalDate getServiceDate() { return serviceDate; }
-       public void setServiceDate(LocalDate serviceDate) { this.serviceDate = serviceDate; }
-       public LocalDate getPracticeDate() { return practiceDate; }
-       public void setPracticeDate(LocalDate practiceDate) { this.practiceDate = practiceDate; }
-       public String getLocation() { return location; }
-       public void setLocation(String location) { this.location = location; }
-       public List<String> getDirectorIds() { return directorIds; }
-       public void setDirectorIds(List<String> directorIds) { this.directorIds = directorIds; }
-       public List<MusicianAssignment> getMusicianAssignments() { return musicianAssignments; }
-       public void setMusicianAssignments(List<MusicianAssignment> musicianAssignments) { this.musicianAssignments = musicianAssignments; }
-   }
-   
-   public static class MusicianAssignment {
-       private String musicianId;
-       private String instrument;
-       
-       // Getters y setters
-       public String getMusicianId() { return musicianId; }
-       public void setMusicianId(String musicianId) { this.musicianId = musicianId; }
-       public String getInstrument() { return instrument; }
-       public void setInstrument(String instrument) { this.instrument = instrument; }
-   }
-   
+        private LocalDate serviceDate;
+        private LocalDate practiceDate;
+        private String location;
+        private List<String> directorIds;
+        private List<MusicianAssignment> musicianAssignments;
+        
+        // Getters y setters
+        public LocalDate getServiceDate() { return serviceDate; }
+        public void setServiceDate(LocalDate serviceDate) { this.serviceDate = serviceDate; }
+        public LocalDate getPracticeDate() { return practiceDate; }
+        public void setPracticeDate(LocalDate practiceDate) { this.practiceDate = practiceDate; }
+        public String getLocation() { return location; }
+        public void setLocation(String location) { this.location = location; }
+        public List<String> getDirectorIds() { return directorIds; }
+        public void setDirectorIds(List<String> directorIds) { this.directorIds = directorIds; }
+        public List<MusicianAssignment> getMusicianAssignments() { return musicianAssignments; }
+        public void setMusicianAssignments(List<MusicianAssignment> musicianAssignments) { this.musicianAssignments = musicianAssignments; }
+    }
+    
+    public static class MusicianAssignment {
+        private String musicianId;
+        private String instrument;
+        
+        // Getters y setters
+        public String getMusicianId() { return musicianId; }
+        public void setMusicianId(String musicianId) { this.musicianId = musicianId; }
+        public String getInstrument() { return instrument; }
+        public void setInstrument(String instrument) { this.instrument = instrument; }
+    }
+    
    
 } 

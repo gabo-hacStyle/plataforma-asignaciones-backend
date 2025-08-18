@@ -3,6 +3,7 @@ package com.backend.infraestructure.security;
 import java.util.ArrayList;
 import java.util.Collection;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -30,7 +31,13 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
         
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().toString()));
+        
+        // Crear authorities para cada rol del usuario
+        if (user.getRoles() != null) {
+            for (UserModel.Role role : user.getRoles()) {
+                authorities.add(new SimpleGrantedAuthority("ROLE_" + role.toString()));
+            }
+        }
         
         return new User(user.getEmail(), "", authorities);
     }

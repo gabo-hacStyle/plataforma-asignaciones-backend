@@ -29,8 +29,8 @@ public class UserServiceImpl implements IUserService {
         validateUserData(user);
         
         // Establecer rol por defecto como MUSICIAN si no se especifica
-        if (user.getRole() == null) {
-            user.setRole(UserModel.Role.MUSICIAN);
+        if (user.getRoles() == null || user.getRoles().isEmpty()) {
+            user.setRoles(List.of(UserModel.Role.MUSICIAN));
         }
         
         // Establecer fecha de creación si no existe
@@ -74,8 +74,8 @@ public class UserServiceImpl implements IUserService {
         if (user.getPhoneNumber() != null && !user.getPhoneNumber().trim().isEmpty()) {
             existingUser.setPhoneNumber(user.getPhoneNumber());
         }
-        if (user.getRole() != null) {
-            existingUser.setRole(user.getRole());
+        if (user.getRoles() != null) {
+            existingUser.setRoles(user.getRoles());
         }
         
         return userUseCases.updateUser(existingUser);
@@ -109,7 +109,7 @@ public class UserServiceImpl implements IUserService {
         
         List<UserModel> allUsers = userUseCases.getAllUsers();
         return allUsers.stream()
-                .filter(user -> user.getRole() == role)
+                .filter(user -> user.getRoles() != null && user.getRoles().contains(role))
                 .collect(Collectors.toList());
     }
     
@@ -117,7 +117,7 @@ public class UserServiceImpl implements IUserService {
     public List<UserModel> getAvailableMusicians() {
         List<UserModel> allUsers = userUseCases.getAllUsers();
         return allUsers.stream()
-                .filter(user -> user.getRole() == UserModel.Role.MUSICIAN)
+                .filter(user -> user.getRoles() != null && user.getRoles().contains(UserModel.Role.MUSICIAN))
                 .collect(Collectors.toList());
     }
     
@@ -125,7 +125,7 @@ public class UserServiceImpl implements IUserService {
     public List<UserModel> getAvailableDirectors() {
         List<UserModel> allUsers = userUseCases.getAllUsers();
         return allUsers.stream()
-                .filter(user -> user.getRole() == UserModel.Role.DIRECTOR)
+                .filter(user -> user.getRoles() != null && user.getRoles().contains(UserModel.Role.DIRECTOR))
                 .collect(Collectors.toList());
     }
     
@@ -173,7 +173,7 @@ public class UserServiceImpl implements IUserService {
         }
         
         UserModel user = userUseCases.getUserById(userId);
-        return user != null && user.getRole() == UserModel.Role.MUSICIAN;
+        return user != null && user.getRoles() != null && user.getRoles().contains(UserModel.Role.MUSICIAN);
     }
     
     @Override
@@ -183,7 +183,7 @@ public class UserServiceImpl implements IUserService {
         }
         
         UserModel user = userUseCases.getUserById(userId);
-        return user != null && user.getRole() == UserModel.Role.DIRECTOR;
+        return user != null && user.getRoles() != null && user.getRoles().contains(UserModel.Role.DIRECTOR);
     }
     
     @Override
@@ -193,7 +193,7 @@ public class UserServiceImpl implements IUserService {
         }
         
         UserModel user = userUseCases.getUserById(userId);
-        return user != null && user.getRole() == UserModel.Role.ADMIN;
+        return user != null && user.getRoles() != null && user.getRoles().contains(UserModel.Role.ADMIN);
     }
     
     // Métodos privados para validación y optimización

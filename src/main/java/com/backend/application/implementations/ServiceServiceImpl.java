@@ -78,9 +78,12 @@ public class ServiceServiceImpl implements IServiceService {
                     throw new IllegalArgumentException("Director no encontrado: " + directorId);
                 }
                 
-                // Cambiar rol del usuario a DIRECTOR si es músico
-                if (director.getRole() == UserModel.Role.MUSICIAN) {
-                    director.setRole(UserModel.Role.DIRECTOR);
+                // Añadir rol DIRECTOR si no lo tiene ya
+                if (director.getRoles() == null) {
+                    director.setRoles(new ArrayList<>());
+                }
+                if (!director.getRoles().contains(UserModel.Role.DIRECTOR)) {
+                    director.getRoles().add(UserModel.Role.DIRECTOR);
                     userUseCases.updateUser(director);
                 }
                 
@@ -114,7 +117,7 @@ public class ServiceServiceImpl implements IServiceService {
     public List<UserModel> getAllMusicians() {
         List<UserModel> allUsers = userUseCases.getAllUsers();
         return allUsers.stream()
-                .filter(user -> user.getRole() == UserModel.Role.MUSICIAN)
+                .filter(user -> user.getRoles() != null && user.getRoles().contains(UserModel.Role.MUSICIAN))
                 .collect(Collectors.toList());
     }
     
@@ -132,9 +135,12 @@ public class ServiceServiceImpl implements IServiceService {
                 throw new IllegalArgumentException("Director no encontrado: " + directorId);
             }
             
-            // Cambiar rol del usuario a DIRECTOR si es músico
-            if (director.getRole() == UserModel.Role.MUSICIAN) {
-                director.setRole(UserModel.Role.DIRECTOR);
+            // Añadir rol DIRECTOR si no lo tiene ya
+            if (director.getRoles() == null) {
+                director.setRoles(new ArrayList<>());
+            }
+            if (!director.getRoles().contains(UserModel.Role.DIRECTOR)) {
+                director.getRoles().add(UserModel.Role.DIRECTOR);
                 userUseCases.updateUser(director);
             }
             

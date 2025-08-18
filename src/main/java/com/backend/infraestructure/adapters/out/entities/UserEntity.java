@@ -1,6 +1,7 @@
 package com.backend.infraestructure.adapters.out.entities;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -22,7 +23,7 @@ public class UserEntity {
     private String name;
     private String email;
     private String phoneNumber;
-    private UserModel.Role role;
+    private List<UserModel.Role> roles; // Cambiado de Role role a List<Role> roles
     private LocalDateTime createdAt;
     
     public static UserEntity fromDomain(UserModel userModel) {
@@ -31,7 +32,7 @@ public class UserEntity {
         entity.setName(userModel.getName());
         entity.setEmail(userModel.getEmail());
         entity.setPhoneNumber(userModel.getPhoneNumber());
-        entity.setRole(userModel.getRole());
+        entity.setRoles(userModel.getRoles()); // Cambiado de setRole a setRoles
         entity.setCreatedAt(userModel.getCreatedAt());
         return entity;
     }
@@ -42,7 +43,7 @@ public class UserEntity {
         userModel.setName(this.name);
         userModel.setEmail(this.email);
         userModel.setPhoneNumber(this.phoneNumber);
-        userModel.setRole(this.role);
+        userModel.setRoles(this.roles); // Cambiado de setRole a setRoles
         userModel.setCreatedAt(this.createdAt);
         return userModel;
     }

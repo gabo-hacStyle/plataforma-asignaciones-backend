@@ -17,12 +17,20 @@ public interface UserRepository extends MongoRepository<UserEntity, String> {
     
     Optional<UserEntity> findByPhoneNumber(String phoneNumber);
     
-    @Query("{'role': ?0}")
+    // Consultas para múltiples roles
+    @Query("{'roles': ?0}")
     List<UserEntity> findByRole(UserModel.Role role);
     
-    @Query("{'role': 'MUSICIAN'}")
+    @Query("{'roles': 'MUSICIAN'}")
     List<UserEntity> findAllMusicians();
     
-    @Query("{'role': 'DIRECTOR'}")
+    @Query("{'roles': 'DIRECTOR'}")
     List<UserEntity> findAllDirectors();
+    
+    @Query("{'roles': 'ADMIN'}")
+    List<UserEntity> findAllAdmins();
+    
+    // Consulta para usuarios que tienen al menos uno de los roles especificados
+    @Query("{'roles': {'$in': ?0}}")
+    List<UserEntity> findByRolesIn(List<UserModel.Role> roles);
 } 

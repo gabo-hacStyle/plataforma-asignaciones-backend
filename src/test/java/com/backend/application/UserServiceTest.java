@@ -44,21 +44,21 @@ class UserServiceTest {
         testAdmin.setId("admin1");
         testAdmin.setName("Admin Test");
         testAdmin.setEmail("admin@test.com");
-        testAdmin.setRole(UserModel.Role.ADMIN);
+        testAdmin.setRoles(Arrays.asList(UserModel.Role.ADMIN));
         testAdmin.setCreatedAt(LocalDateTime.now());
         
         testDirector = new UserModel();
         testDirector.setId("director1");
         testDirector.setName("Director Test");
         testDirector.setEmail("director@test.com");
-        testDirector.setRole(UserModel.Role.DIRECTOR);
+        testDirector.setRoles(Arrays.asList(UserModel.Role.DIRECTOR));
         testDirector.setCreatedAt(LocalDateTime.now());
         
         testMusician = new UserModel();
         testMusician.setId("musician1");
         testMusician.setName("Musician Test");
         testMusician.setEmail("musician@test.com");
-        testMusician.setRole(UserModel.Role.MUSICIAN);
+        testMusician.setRoles(Arrays.asList(UserModel.Role.MUSICIAN));
         testMusician.setCreatedAt(LocalDateTime.now());
         
         testService = new ServiceModel();
@@ -88,13 +88,13 @@ class UserServiceTest {
         UserModel newUser = new UserModel();
         newUser.setName("New User");
         newUser.setEmail("new@test.com");
-        newUser.setRole(null); // Sin rol específico
+        newUser.setRoles(null); // Sin rol específico
         
         when(userUseCases.createUser(any(UserModel.class))).thenReturn(newUser);
       
         
         // Then
-        assertEquals(UserModel.Role.MUSICIAN, newUser.getRole());
+        assertEquals(UserModel.Role.MUSICIAN, newUser.getRoles().get(0));
         verify(userUseCases).createUser(newUser);
     }
     
@@ -310,7 +310,7 @@ class UserServiceTest {
         // Then
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(UserModel.Role.MUSICIAN, result.get(0).getRole());
+        assertEquals(UserModel.Role.MUSICIAN, result.get(0).getRoles().get(0));
     }
     
     @Test
@@ -333,7 +333,7 @@ class UserServiceTest {
         // Then
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(UserModel.Role.MUSICIAN, result.get(0).getRole());
+        assertEquals(UserModel.Role.MUSICIAN, result.get(0).getRoles().get(0));
     }
     
     @Test
@@ -348,7 +348,7 @@ class UserServiceTest {
         // Then
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(UserModel.Role.DIRECTOR, result.get(0).getRole());
+        assertEquals(UserModel.Role.DIRECTOR, result.get(0).getRoles().get(0));
     }
     
     // Tests para consultas de servicios por usuario

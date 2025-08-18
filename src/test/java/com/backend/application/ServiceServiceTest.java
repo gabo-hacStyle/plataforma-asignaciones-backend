@@ -47,13 +47,13 @@ class ServiceServiceTest {
         testDirector.setId("director1");
         testDirector.setName("Director Test");
         testDirector.setEmail("director@test.com");
-        testDirector.setRole(UserModel.Role.DIRECTOR);
+        testDirector.setRoles(Arrays.asList(UserModel.Role.DIRECTOR));
         
         testMusician = new UserModel();
         testMusician.setId("musician1");
         testMusician.setName("Musician Test");
         testMusician.setEmail("musician@test.com");
-        testMusician.setRole(UserModel.Role.MUSICIAN);
+        testMusician.setRoles(Arrays.asList(UserModel.Role.MUSICIAN));
         
         // Crear lista de músicos para el servicio
         MusiciansList musicianAssignment = new MusiciansList();
@@ -132,7 +132,7 @@ class ServiceServiceTest {
         // Given
         UserModel musicianAsDirector = new UserModel();
         musicianAsDirector.setId("musician1");
-        musicianAsDirector.setRole(UserModel.Role.MUSICIAN);
+        musicianAsDirector.setRoles(Arrays.asList(UserModel.Role.MUSICIAN));
         
         List<String> directorIds = Arrays.asList("musician1");
         when(servicesUseCases.getServiceById("service1")).thenReturn(testService);
@@ -145,7 +145,7 @@ class ServiceServiceTest {
         // Then
         assertNotNull(result);
         verify(userUseCases).updateUser(musicianAsDirector);
-        assertEquals(UserModel.Role.DIRECTOR, musicianAsDirector.getRole());
+        assertEquals(UserModel.Role.DIRECTOR, musicianAsDirector.getRoles().get(0));
     }
     
     @Test

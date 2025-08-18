@@ -2,6 +2,7 @@ package com.backend.application;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -34,7 +35,7 @@ public class JwtService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
         claims.put("email", user.getEmail());
-        claims.put("role", user.getRole().toString());
+        claims.put("roles", user.getRoles()); // Cambiado de role a roles
         
         return createToken(claims, user.getEmail());
     }
@@ -57,6 +58,15 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
     
+    @SuppressWarnings("unchecked")
+    public List<String> extractRoles(String token) {
+        return extractClaim(token, claims -> (List<String>) claims.get("roles"));
+    }
+    
+    public String extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("userId", String.class));
+    }
+    
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
@@ -77,13 +87,5 @@ public class JwtService {
     public Boolean validateToken(String token, String email) {
         final String tokenEmail = extractEmail(token);
         return (email.equals(tokenEmail) && !isTokenExpired(token));
-    }
-    
-    public String extractUserId(String token) {
-        return extractClaim(token, claims -> claims.get("userId", String.class));
-    }
-    
-    public String extractRole(String token) {
-        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 } 

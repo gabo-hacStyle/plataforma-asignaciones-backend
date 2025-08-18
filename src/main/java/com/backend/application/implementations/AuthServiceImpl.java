@@ -1,6 +1,7 @@
 package com.backend.application.implementations;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,8 +48,7 @@ public class AuthServiceImpl implements IAuthService {
     public AuthUser authenticateWithGoogle(String googleToken) {
         try {
 
-            log.info("Google Token en el servicio: {}", googleToken);
-            log.info("Type of Google Token en el servicio: {}", googleToken.getClass());
+           
 
             // Validar el token con Google
             GoogleUserInfo googleUserInfo = validateGoogleToken(googleToken);
@@ -89,7 +89,7 @@ public class AuthServiceImpl implements IAuthService {
         // Crear nuevo usuario con datos mínimos
         UserModel newUser = new UserModel();
         newUser.setEmail(authUser.getEmail());
-        newUser.setRole(UserModel.Role.MUSICIAN); // Rol por defecto
+        newUser.setRoles(List.of(UserModel.Role.MUSICIAN)); // Rol por defecto como lista
         newUser.setCreatedAt(LocalDateTime.now());
         
         // No establecer nombre ni teléfono - el usuario los completará después
@@ -135,7 +135,7 @@ public class AuthServiceImpl implements IAuthService {
      */
     private GoogleUserInfo validateGoogleToken(String token) throws Exception {
         try {
-            log.info("Token en el servicio de validateGoogleToken: {}", token);
+            
             
             // Para ID Tokens de Google, usamos la API de userinfo
             // Primero validamos el token con Google
@@ -146,11 +146,7 @@ public class AuthServiceImpl implements IAuthService {
             
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
             
-            log.info("Response: {}", response);
-            log.info("Type of Response: {}", response.getClass());
-            log.info("Response Body: {}", response.getBody());
-            log.info("Response Status Code (boolean): {}", response.getStatusCode().is2xxSuccessful());
-            
+          
             if (response.getStatusCode().is2xxSuccessful()) {
                 JsonNode jsonNode = objectMapper.readTree(response.getBody());
                 
@@ -166,10 +162,7 @@ public class AuthServiceImpl implements IAuthService {
                 String name = jsonNode.has("name") ? jsonNode.get("name").asText() : "";
                 String picture = jsonNode.has("picture") ? jsonNode.get("picture").asText() : "";
                 
-                log.info("Email: {}", email);
-                log.info("Google ID: {}", googleId);
-                log.info("Name: {}", name);
-                log.info("Picture: {}", picture);
+                
                 
                 return new GoogleUserInfo(email, googleId, name, picture);
             } else {

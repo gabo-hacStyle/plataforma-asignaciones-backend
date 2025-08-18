@@ -61,7 +61,7 @@ public class ServicesUseCasesImpl implements ServicesUseCases {
     
     @Override
     public List<ServiceModel> getAllServices() {
-        List<ServiceEntity> serviceEntities = serviceRepository.findAll();
+        List<ServiceEntity> serviceEntities = serviceRepository.findAllByOrderByServiceDateAsc();
         return serviceEntities.stream()
                 .map(ServiceEntity::toDomain)
                 .collect(Collectors.toList());

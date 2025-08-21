@@ -10,6 +10,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateAssingmentRequest {
-    private List<String> directorIds;   
-    private List<MusicianAssignment> musiciansList;
+
+    private Assignments oldAssignments;
+    private Assignments newAssignments;
+
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Assignments {
+        private List<String> directorIds;   
+        private List<MusicianAssignment> musiciansList;
+    }
+    
 }

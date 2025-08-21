@@ -6,10 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import com.backend.application.INotificationService;
 import com.backend.application.IServiceService;
+import com.backend.domain.port.UserUseCases;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import com.backend.application.dto.CreateSongListRequest;
 import com.backend.application.dto.MusicianAssignment;
 import com.backend.application.dto.UpdateAssingmentRequest;
@@ -17,18 +21,19 @@ import com.backend.domain.model.MusiciansList;
 import com.backend.domain.model.ServiceModel;
 import com.backend.domain.model.SongsModel;
 import com.backend.domain.model.UserModel;
-
 import com.backend.domain.port.ServicesUseCases;
-import com.backend.domain.port.UserUseCases;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class ServiceServiceImpl implements IServiceService {
     
-    @Autowired
-    private ServicesUseCases servicesUseCases;
+    private final ServicesUseCases servicesUseCases;
     
-    @Autowired
-    private UserUseCases userUseCases;
+    
+    private final UserUseCases userUseCases;
+    
+    private final INotificationService notificationService;
     
     // Historias de usuario del Admin
     @Override
@@ -110,7 +115,12 @@ public class ServiceServiceImpl implements IServiceService {
         }
         
         // Crear el servicio en la base de datos
-        return servicesUseCases.createService(service);
+        ServiceModel createdService = servicesUseCases.createService(service);
+        
+        // Generar notificaciones de asignación para la creación del servicio
+        generateCreationNotifications(createdService, directorIds, musicianAssignments);
+        
+        return createdService;
     }
     
     @Override
@@ -181,15 +191,31 @@ public class ServiceServiceImpl implements IServiceService {
         
         ServiceModel service = servicesUseCases.getServiceById(serviceId);
         
+        // Usar las asignaciones que vienen del frontend
+        UpdateAssingmentRequest.Assignments oldAssignments = request.getOldAssignments();
+        UpdateAssingmentRequest.Assignments newAssignments = request.getNewAssignments();
+        
         // Actualizar directores
-        if (request.getDirectorIds() != null && !request.getDirectorIds().isEmpty()) {
-            service = assignDirectorsToService(serviceId, request.getDirectorIds());
+        if (newAssignments.getDirectorIds() != null && !newAssignments.getDirectorIds().isEmpty()) {
+            service = assignDirectorsToService(serviceId, newAssignments.getDirectorIds());
         }
         
         // Actualizar músicos
-        if (request.getMusiciansList() != null && !request.getMusiciansList().isEmpty()) {
-            service = assignMusiciansToService(serviceId, request.getMusiciansList());
+        if (newAssignments.getMusiciansList() != null && !newAssignments.getMusiciansList().isEmpty()) {
+            service = assignMusiciansToService(serviceId, newAssignments.getMusiciansList());
         }
+        
+        // Generar notificaciones para usuarios asignados
+        List<INotificationService.EmailNotificationBody> assignmentNotifications = 
+            notificationService.generateAssignmentNotifications(service, newAssignments, oldAssignments);
+        
+        // Generar notificaciones para usuarios removidos
+        List<INotificationService.EmailNotificationBody> removalNotifications = 
+            notificationService.generateRemovalNotifications(service, newAssignments, oldAssignments);
+        
+        // Las notificaciones se envían automáticamente a través de la cola
+        log.info("📧 {} notificaciones de asignación y {} de remoción enviadas a la cola", 
+            assignmentNotifications.size(), removalNotifications.size());
         
         return service;
     }
@@ -409,5 +435,59 @@ public class ServiceServiceImpl implements IServiceService {
         }
         
         return songsList;
+    }
+
+    /**
+     * Registra las notificaciones generadas (temporalmente solo log)
+     */
+    private void logNotificationResults(
+            List<INotificationService.EmailNotificationBody> assignmentNotifications,
+            List<INotificationService.EmailNotificationBody> removalNotifications) {
+        
+        System.out.println("=== NOTIFICACIONES DE ASIGNACIÓN ===");
+        for (INotificationService.EmailNotificationBody notification : assignmentNotifications) {
+            System.out.println("📧 Email para: " + notification.getUserEmail());
+            System.out.println("📋 Asunto: " + notification.getSubject());
+            System.out.println("📝 Cuerpo: " + notification.getEmailBody());
+            System.out.println("---");
+        }
+        
+        System.out.println("=== NOTIFICACIONES DE REMOCIÓN ===");
+        for (INotificationService.EmailNotificationBody notification : removalNotifications) {
+            System.out.println("📧 Email para: " + notification.getUserEmail());
+            System.out.println("📋 Asunto: " + notification.getSubject());
+            System.out.println("📝 Cuerpo: " + notification.getEmailBody());
+            System.out.println("---");
+        }
+    }
+    
+    /**
+     * Genera notificaciones de asignación para la creación de un servicio
+     */
+    private void generateCreationNotifications(ServiceModel service, List<String> directorIds, List<MusicianAssignment> musicianAssignments) {
+        try {
+            // Crear objeto de asignaciones nuevas (lo que se está asignando)
+            UpdateAssingmentRequest.Assignments newAssignments = new UpdateAssingmentRequest.Assignments();
+            newAssignments.setDirectorIds(directorIds != null ? directorIds : new ArrayList<>());
+            newAssignments.setMusiciansList(musicianAssignments != null ? musicianAssignments : new ArrayList<>());
+            
+            // Crear objeto de asignaciones viejas (vacío para creación)
+            UpdateAssingmentRequest.Assignments oldAssignments = new UpdateAssingmentRequest.Assignments();
+            oldAssignments.setDirectorIds(new ArrayList<>());
+            oldAssignments.setMusiciansList(new ArrayList<>());
+            
+            // Generar notificaciones de asignación (solo assignments, no removals)
+            List<INotificationService.EmailNotificationBody> assignmentNotifications = 
+                notificationService.generateAssignmentNotifications(service, newAssignments, oldAssignments);
+            
+            // Log de resultados
+            log.info("📧 {} notificaciones de asignación enviadas para la creación del servicio {}", 
+                assignmentNotifications.size(), service.getId());
+            
+        } catch (Exception e) {
+            log.error("❌ Error generando notificaciones de creación para servicio {}: {}", 
+                service.getId(), e.getMessage());
+            // No lanzamos la excepción para no afectar la creación del servicio
+        }
     }
 } 

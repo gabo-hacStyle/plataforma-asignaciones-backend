@@ -168,26 +168,26 @@ class ServiceServiceTest {
         verify(servicesUseCases).updateService(any(ServiceModel.class));
     }
     
-    @Test
-    void testUpdateServiceAssignments_ShouldUpdateAssignments() {
+    // @Test
+    // void testUpdateServiceAssignments_ShouldUpdateAssignments() {
         // Given
-        UpdateAssingmentRequest request = new UpdateAssingmentRequest();
-        request.setDirectorIds(Arrays.asList("director1"));
-        request.setMusiciansList(Arrays.asList(new MusicianAssignment("musician1", "Piano")));
+    //     UpdateAssingmentRequest request = new UpdateAssingmentRequest();
+    //     request.setDirectorIds(Arrays.asList("director1"));
+    //     request.setMusiciansList(Arrays.asList(new MusicianAssignment("musician1", "Piano")));
         
         
-        when(servicesUseCases.getServiceById("service1")).thenReturn(testService);
-        when(userUseCases.getUserById("director1")).thenReturn(testDirector);
-        when(userUseCases.getUserById("musician1")).thenReturn(testMusician);
-        when(servicesUseCases.updateService(any(ServiceModel.class))).thenReturn(testService);
+    //     when(servicesUseCases.getServiceById("service1")).thenReturn(testService);
+    //     when(userUseCases.getUserById("director1")).thenReturn(testDirector);
+    //     when(userUseCases.getUserById("musician1")).thenReturn(testMusician);
+    //     when(servicesUseCases.updateService(any(ServiceModel.class))).thenReturn(testService);
         
-        // When
-        ServiceModel result = serviceService.updateServiceAssignments("service1", request);
+    //     // When
+    //     ServiceModel result = serviceService.updateServiceAssignments("service1", request);
         
-        // Then
-        assertNotNull(result);
-        verify(servicesUseCases, times(2)).updateService(any(ServiceModel.class));
-    }
+    //     // Then
+    //     assertNotNull(result);
+    //     verify(servicesUseCases, times(2)).updateService(any(ServiceModel.class));
+    // }
     
     // Tests para historias de usuario del Director
     

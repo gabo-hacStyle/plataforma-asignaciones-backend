@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Asignación como Director</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 0 0 5px 5px;
+        }
+        .details {
+            background-color: white;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎵 Has sido asignado como Director</h1>
+    </div>
+    
+    <div class="content">
+        <p>Hola <strong th:text="${userName}">Usuario</strong>,</p>
+        
+        <p>Te informamos que has sido asignado como <strong>DIRECTOR</strong> para el servicio del <strong th:text="${serviceDate}">fecha</strong>.</p>
+        
+        <div class="details">
+            <h3>📋 Detalles del servicio:</h3>
+            <ul>
+                <li><strong>Fecha:</strong> <span th:text="${serviceDate}">fecha</span></li>
+                <li><strong>Ubicación:</strong> <span th:text="${serviceLocation}">ubicación</span></li>
+                <li><strong>Fecha de ensayo:</strong> <span th:text="${practiceDate}">fecha ensayo</span></li>
+            </ul>
+        </div>
+        
+        <p>Como director, tendrás acceso para gestionar las canciones de este servicio.</p>
+        
+        
+        
+        <div class="footer">
+            <p>Saludos,<br>
+            <strong>Lider de alabanza</strong></p>
+        </div>
+    </div>
+</body>
+</html>

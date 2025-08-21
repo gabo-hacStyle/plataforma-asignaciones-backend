@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cambio en Asignación - Músico</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #FF5722;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 0 0 5px 5px;
+        }
+        .details {
+            background-color: white;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #FF5722;
+        }
+        .instrument {
+            background-color: #ffebee;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .notice {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚠️ Cambio en tu Asignación</h1>
+    </div>
+    
+    <div class="content">
+        <p>Hola <strong th:text="${userName}">Usuario</strong>,</p>
+        
+        <p>Te informamos que ya no estás asignado como <strong>MÚSICO</strong> para el servicio del <strong th:text="${serviceDate}">fecha</strong>.</p>
+        
+        <div class="details">
+            <h3>📋 Detalles de tu asignación anterior:</h3>
+            
+            <div class="instrument">
+                <strong>🎸 Instrumento:</strong> <span th:text="${instrument}">instrumento</span>
+            </div>
+            
+            <ul>
+                <li><strong>Fecha del servicio:</strong> <span th:text="${serviceDate}">fecha</span></li>
+                <li><strong>Ubicación:</strong> <span th:text="${serviceLocation}">ubicación</span></li>
+            </ul>
+        </div>
+        
+        <div class="notice">
+            <h4>📞 ¿Tienes preguntas?</h4>
+            <p>Si tienes alguna pregunta sobre este cambio, por favor comunícate con el administrador para conocer el motivo.</p>
+        </div>
+        
+        <p>Gracias por tu comprensión, si quieres saber el motivo, contacta al lider de alabanza.</p>
+        
+        <div class="footer">
+            <p>Saludos,<br>
+            <strong>Lider de alabanza</strong></p>
+        </div>
+    </div>
+</body>
+</html>

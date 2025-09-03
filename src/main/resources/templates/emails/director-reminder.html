@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recordatorio de Servicio - Director</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #4CAF50;
+            margin: 0;
+            font-size: 24px;
+        }
+        .service-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        .service-info h3 {
+            margin-top: 0;
+            color: #2E7D32;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .info-value {
+            color: #212529;
+        }
+        .actions {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .actions h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .action-item {
+            margin: 10px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        .action-item:before {
+            content: "🎯";
+            position: absolute;
+            left: 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #6c757d;
+        }
+        .highlight {
+            background-color: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+            margin: 20px 0;
+        }
+        .days-remaining {
+            font-size: 18px;
+            font-weight: bold;
+            color: #d32f2f;
+            text-align: center;
+            background-color: #ffebee;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .link {
+            font-weight: bold;
+            color: #4CAF50;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 Recordatorio de Servicio</h1>
+            <p>Verificar Canciones y Preparación</p>
+        </div>
+        
+        <p>Hola <strong th:text="${userName}">Director</strong>,</p>
+        
+        <p>Te recordamos que tienes un servicio programado como director/a.</p>
+
+        
+        <div class="service-info">
+            <h3>📅 Información del Servicio</h3>
+            <div class="info-row">
+                <span class="info-label">Fecha del servicio:</span>
+                <span class="info-value" th:text="${serviceDate}"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Ubicación:</span>
+                <span class="info-value" th:text="${serviceLocation}"></span>
+            </div>
+            <div class="info-row" th:if="${practiceDate != null}">
+                <span class="info-label">Fecha del ensayo:</span>
+                <span class="info-value" th:text="${practiceDate}"></span>
+            </div>
+        </div>
+        
+        <div class="days-remaining" th:if="${daysUntilPractice > 0}">
+            ⏰ <span th:text="${daysUntilPractice}"></span> días hasta el ensayo
+        </div>
+
+
+        <a href="https://www.gestor-alabanza.online/dashboard" class="btn link">Acceder a la plataforma para gestionar
+            mis servicios
+        </a>
+        
+        <div class="actions">
+            <h3>🎯 Acciones Requeridas</h3>
+            <div class="action-item">
+                Verifica que la lista de canciones esté completa y actualizada
+            </div>
+            <div class="action-item">
+                Revisa que las tonalidades sean correctas 
+            </div>
+            
+            <div class="action-item">
+                Si necesitas hacer cambios, realizalos y comunícate por WhatsApp con el grupo
+            </div>
+        </div>
+        
+        <div class="highlight">
+            <strong>💡 Recordatorio:</strong> Es importante que revises todo con anticipación para asegurar que el servicio se desarrolle sin contratiempos.
+        </div>
+        
+
+        <div class="footer">
+            <p>Saludos,<br><strong>Lider de alabanza</strong></p>
+        </div>
+    </div>
+</body>
+</html>

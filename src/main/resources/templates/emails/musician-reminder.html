@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recordatorio de Ensayo - Músico</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #2196F3;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2196F3;
+            margin: 0;
+            font-size: 24px;
+        }
+        .instrument-badge {
+            display: inline-block;
+            background-color: #2196F3;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .service-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2196F3;
+        }
+        .service-info h3 {
+            margin-top: 0;
+            color: #1976D2;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .info-value {
+            color: #212529;
+        }
+        .preparation {
+            background-color: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .preparation h3 {
+            margin-top: 0;
+            color: #1565C0;
+        }
+        .prep-item {
+            margin: 10px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        .prep-item:before {
+            content: "🎸";
+            position: absolute;
+            left: 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #6c757d;
+        }
+        .highlight {
+            background-color: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+            margin: 20px 0;
+        }
+        .days-remaining {
+            font-size: 18px;
+            font-weight: bold;
+            color: #d32f2f;
+            text-align: center;
+            background-color: #ffebee;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .urgent {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .link {
+            font-weight: bold;
+            color: #4CAF50;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 Recordatorio de Ensayo</h1>
+            <p>Preparar Instrumento y Repertorio</p>
+        </div>
+        
+        <p>Hola <strong th:text="${userName}">Músico</strong>,</p>
+        
+        <p>Te recordamos que tienes un ensayo programado para preparar el próximo servicio.</p>
+        
+        <div class="instrument-badge">
+            🎸 <span th:text="${instrument}">Guitarra</span>
+        </div>
+        
+        <div class="service-info">
+            <h3>📅 Información del Servicio</h3>
+            <div class="info-row">
+                <span class="info-label">Fecha del servicio:</span>
+                <span class="info-value" th:text="${serviceDate}">25/08/2025</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Fecha del ensayo:</span>
+                <span class="info-value" th:text="${practiceDate != null ? practiceDate : 'Por confirmar'}">24/08/2025</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Ubicación:</span>
+                <span class="info-value" th:text="${serviceLocation}">Iglesia Central</span>
+            </div>
+        </div>
+        
+        <div class="days-remaining" th:if="${daysUntilPractice > 0}">
+            ⏰ <span th:text="${daysUntilPractice}">3</span> días hasta el ensayo
+        </div>
+        
+        <div class="urgent" th:if="${daysUntilPractice <= 2}">
+            ⚠️ <strong>Ensayo muy pronto.</strong> Asegúrate de estar preparado.
+        </div>
+        
+        <div class="preparation">
+            <h3>🎯 Preparación Requerida</h3>
+            <div class="prep-item">
+                Practica las canciones asignadas para este servicio
+            </div>
+            <div class="prep-item">
+                Verifica que tu instrumento esté en buen estado y afinado
+            </div>
+            <div class="prep-item">
+                Revisa las tonalidades de las canciones
+            </div>
+            <div class="prep-item">
+                Llega 15 minutos antes del ensayo para prepararte
+            </div>
+          
+        </div>
+
+        <p>Accede a la plataforma en el siguiente link para verificar tus asignaciones:</p>
+        <a  href="https://www.gestor-alabanza.online/dashboard" class="btn link">Acceder a la plataforma</a>
+        
+        
+        <div class="footer">
+            <p>Saludos,<br><strong>Lider de alabanza</strong></p>
+            
+        </div>
+    </div>
+</body>
+</html>

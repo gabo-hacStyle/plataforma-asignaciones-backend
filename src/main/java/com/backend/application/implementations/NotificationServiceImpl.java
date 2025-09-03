@@ -258,4 +258,18 @@ public class NotificationServiceImpl implements INotificationService {
         }
         return date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
     }
+    
+    @Override
+    public void generateReminderNotification(NotificationMessage notificationMessage) {
+        try {
+            // Enviar la notificación de recordatorio directamente a la cola
+            notificationProducer.sendNotificationToQueue(notificationMessage);
+            
+            log.info("📧 Notificación de recordatorio enviada a la cola para: {}", 
+                notificationMessage.getUserEmail());
+                
+        } catch (Exception e) {
+            log.error("❌ Error enviando notificación de recordatorio: {}", e.getMessage());
+        }
+    }
 }

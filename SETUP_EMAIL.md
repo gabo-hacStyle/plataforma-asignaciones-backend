@@ -75,3 +75,5 @@ spring.mail.properties.mail.smtp.ssl.protocols=TLSv1.2,TLSv1.3
 **¡Con estos pasos deberías tener emails funcionando! 🎉**
 
 
+
+

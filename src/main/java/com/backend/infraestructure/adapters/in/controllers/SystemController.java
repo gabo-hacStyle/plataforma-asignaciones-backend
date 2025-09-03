@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/system")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class SystemController {
     
     private final IServiceService serviceService;

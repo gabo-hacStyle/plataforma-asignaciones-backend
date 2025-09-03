@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/test")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class TestController {
     
     // Endpoint público (sin autenticación)

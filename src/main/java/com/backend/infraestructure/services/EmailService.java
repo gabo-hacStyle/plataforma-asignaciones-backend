@@ -53,6 +53,25 @@ public class EmailService {
         context.setVariable("serviceLocation", notification.getServiceLocation());
         context.setVariable("practiceDate", notification.getPracticeDate());
         context.setVariable("category", notification.getCategory().name());
+        context.setVariable("serviceId", notification.getServiceId());
+        
+        // Variables adicionales para recordatorios
+        if (notification.getCategory() == NotificationMessage.NotificationCategory.REMINDER) {
+            // Calcular días hasta el ensayo
+            try {
+                if (notification.getPracticeDate() != null && !notification.getPracticeDate().equals("Por confirmar")) {
+                    java.time.LocalDate practiceDate = java.time.LocalDate.parse(notification.getPracticeDate(), 
+                        java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                    java.time.LocalDate today = java.time.LocalDate.now();
+                    long daysUntilPractice = java.time.temporal.ChronoUnit.DAYS.between(today, practiceDate);
+                    context.setVariable("daysUntilPractice", daysUntilPractice > 0 ? daysUntilPractice : 0);
+                } else {
+                    context.setVariable("daysUntilPractice", 0);
+                }
+            } catch (Exception e) {
+                context.setVariable("daysUntilPractice", 0);
+            }
+        }
         
         // Seleccionar template según el tipo de notificación
         String templateName = getTemplateName(notification);
@@ -64,9 +83,15 @@ public class EmailService {
         if (notification.getCategory() == NotificationMessage.NotificationCategory.ASSIGNMENT) {
             return notification.getUserRole().equals("DIRECTOR") ? 
                 "director-assignment" : "musician-assignment";
-        } else {
+        } else if (notification.getCategory() == NotificationMessage.NotificationCategory.REMOVAL) {
             return notification.getUserRole().equals("DIRECTOR") ? 
                 "director-removal" : "musician-removal";
+        } else if (notification.getCategory() == NotificationMessage.NotificationCategory.REMINDER) {
+            return notification.getUserRole().equals("DIRECTOR") ? 
+                "director-reminder" : "musician-reminder";
+        } else {
+            // Fallback para casos no manejados
+            return "musician-assignment";
         }
     }
 }

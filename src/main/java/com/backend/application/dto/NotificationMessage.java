@@ -15,7 +15,8 @@ public class NotificationMessage {
     
     public enum NotificationCategory {
         ASSIGNMENT,
-        REMOVAL
+        REMOVAL,
+        REMINDER
     }
     
     private NotificationType type;

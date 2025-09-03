@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/director")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class DirectorController {
     
     private final IServiceService serviceService;

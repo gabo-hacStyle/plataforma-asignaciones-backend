@@ -37,6 +37,12 @@ public interface INotificationService {
     );
     
     /**
+     * Genera notificación de recordatorio para un usuario
+     * @param notificationMessage Mensaje de notificación con datos del recordatorio
+     */
+    void generateReminderNotification(com.backend.application.dto.NotificationMessage notificationMessage);
+    
+    /**
      * Clase interna para representar el cuerpo de un email de notificación
      */
     @Data

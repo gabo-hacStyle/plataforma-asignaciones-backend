@@ -127,11 +127,11 @@ public class ReminderServiceImpl implements IReminderService {
             createReminderNotification(director, subject, service, "DIRECTOR");
             
             log.info("📧 Recordatorio enviado al director {} para servicio {}", 
-                director.getId(), service.getId());
+                director.getName(), service.getId());
             
         } catch (Exception e) {
             log.error("❌ Error enviando recordatorio al director {}: {}", 
-                director.getId(), e.getMessage());
+                director.getName(), e.getMessage());
         }
     }
     
@@ -149,11 +149,11 @@ public class ReminderServiceImpl implements IReminderService {
             createReminderNotification(musician, subject, service, "MUSICIAN");
             
             log.info("📧 Recordatorio enviado al músico {} para servicio {}", 
-                musician.getId(), service.getId());
+                musician.getName(), service.getId());
             
         } catch (Exception e) {
             log.error("❌ Error enviando recordatorio al músico {}: {}", 
-                musician.getId(), e.getMessage());
+                musician.getName(), e.getMessage());
         }
     }
     
@@ -165,7 +165,7 @@ public class ReminderServiceImpl implements IReminderService {
         try {
             // Crear mensaje de notificación
             var notificationMessage = new com.backend.application.dto.NotificationMessage();
-            notificationMessage.setUserId(user.getId());
+            notificationMessage.setUserId(user.getName());
             notificationMessage.setUserEmail(user.getEmail());
             notificationMessage.setUserRole(role);
             notificationMessage.setSubject(subject);

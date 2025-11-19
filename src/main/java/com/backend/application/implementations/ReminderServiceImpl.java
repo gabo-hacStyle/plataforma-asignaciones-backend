@@ -32,15 +32,15 @@ public class ReminderServiceImpl implements IReminderService {
     
     @Override
     public List<ServiceModel> findUpcomingServices() {
-        LocalDate today = LocalDate.now();
-        LocalDate tenDaysFromNow = today.plusDays(10);
+        LocalDate afterTomorrow = LocalDate.now().plusDays(2);
+        LocalDate tenDaysFromAfterTomorrow = afterTomorrow.plusDays(10);
         
         List<ServiceModel> allServices = servicesUseCases.getAllServices();
         
         return allServices.stream()
                 .filter(service -> service.getServiceDate() != null)
-                .filter(service -> !service.getServiceDate().isBefore(today))
-                .filter(service -> !service.getServiceDate().isAfter(tenDaysFromNow))
+                .filter(service -> !service.getServiceDate().isBefore(afterTomorrow))
+                .filter(service -> !service.getServiceDate().isAfter(tenDaysFromAfterTomorrow))
                 .collect(Collectors.toList());
     }
     
@@ -61,7 +61,7 @@ public class ReminderServiceImpl implements IReminderService {
     }
     
     @Override
-    @Scheduled(cron = "0 0 9 * * SUN,WED") // Cada domingo y miércoles a las 9:00 AM
+    @Scheduled(cron = "0 0 9 * * SAT,TUE") // Cada domingo y miércoles a las 9:00 AM
     public void sendReminderNotifications() {
         try {
             log.info("🕐 Iniciando envío de recordatorios automáticos...");

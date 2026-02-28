@@ -30,7 +30,7 @@ public class ServiceEntity {
     private List<SongsEntity> songsList;
     private String location;
     private LocalDateTime createdAt;
-    
+    private String clothesColor;
     public static ServiceEntity fromDomain(ServiceModel serviceModel) {
         ServiceEntity entity = new ServiceEntity();
         entity.setId(serviceModel.getId());
@@ -38,6 +38,7 @@ public class ServiceEntity {
         entity.setPracticeDate(serviceModel.getPracticeDate());
         entity.setLocation(serviceModel.getLocation());
         entity.setCreatedAt(serviceModel.getCreatedAt());
+        entity.setClothesColor(serviceModel.getClothesColor());
         
         // Convertir directores
         if (serviceModel.getDirectors() != null) {
@@ -70,7 +71,7 @@ public class ServiceEntity {
         serviceModel.setPracticeDate(this.practiceDate);
         serviceModel.setLocation(this.location);
         serviceModel.setCreatedAt(this.createdAt);
-        
+        serviceModel.setClothesColor(this.clothesColor);
         // Convertir directores
         if (this.directors != null) {
             serviceModel.setDirectors(this.directors.stream()

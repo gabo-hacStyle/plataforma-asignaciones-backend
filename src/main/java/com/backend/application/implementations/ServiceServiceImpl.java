@@ -141,13 +141,6 @@ public class ServiceServiceImpl implements IServiceService {
     }
 
 
-    @Override
-    public List<UserModel> getAllMusicians() {
-        List<UserModel> allUsers = userUseCases.getAllUsers();
-        return allUsers.stream()
-                .filter(user -> user.getRoles() != null && user.getRoles().contains(UserModel.Role.MUSICIAN))
-                .collect(Collectors.toList());
-    }
     
     @Override
     public ServiceModel assignDirectorsToService(String serviceId, List<String> directorIds) {
@@ -314,50 +307,7 @@ public class ServiceServiceImpl implements IServiceService {
     public List<ServiceModel> getAllServices() {
         return servicesUseCases.getAllServices();
     }
-    
-    @Override
-    public List<ServiceModel> getServicesByDirector(String directorId) {
-        if (directorId == null || directorId.trim().isEmpty()) {
-            throw new IllegalArgumentException("ID de director no puede ser null o vacío");
-        }
-        return servicesUseCases.getServicesByDirector(directorId);
-    }
-    
-    @Override
-    public List<ServiceModel> getServicesByMusician(String musicianId) {
-        if (musicianId == null || musicianId.trim().isEmpty()) {
-            throw new IllegalArgumentException("ID de músico no puede ser null o vacío");
-        }
-        return servicesUseCases.getServicesByMusician(musicianId);
-    }
-    
-    @Override
-    public List<ServiceModel> getServicesByDate(LocalDate date) {
-        if (date == null) {
-            throw new IllegalArgumentException("Fecha no puede ser null");
-        }
-        
-        List<ServiceModel> allServices = servicesUseCases.getAllServices();
-        return allServices.stream()
-                .filter(service -> service.getServiceDate().equals(date))
-                .collect(Collectors.toList());
-    }
-    
-    @Override
-    public List<ServiceModel> getServicesByDateRange(LocalDate startDate, LocalDate endDate) {
-        if (startDate == null || endDate == null) {
-            throw new IllegalArgumentException("Fechas no pueden ser null");
-        }
-        if (startDate.isAfter(endDate)) {
-            throw new IllegalArgumentException("Fecha de inicio no puede ser posterior a la fecha de fin");
-        }
-        
-        List<ServiceModel> allServices = servicesUseCases.getAllServices();
-        return allServices.stream()
-                .filter(service -> !service.getServiceDate().isBefore(startDate) && 
-                                 !service.getServiceDate().isAfter(endDate))
-                .collect(Collectors.toList());
-    }
+
     
     // Validaciones de roles dinámicos
     @Override
@@ -460,31 +410,6 @@ public class ServiceServiceImpl implements IServiceService {
         
         return songsList;
     }
-
-    /**
-     * Registra las notificaciones generadas (temporalmente solo log)
-     */
-    private void logNotificationResults(
-            List<INotificationService.EmailNotificationBody> assignmentNotifications,
-            List<INotificationService.EmailNotificationBody> removalNotifications) {
-        
-        System.out.println("=== NOTIFICACIONES DE ASIGNACIÓN ===");
-        for (INotificationService.EmailNotificationBody notification : assignmentNotifications) {
-            System.out.println("📧 Email para: " + notification.getUserEmail());
-            System.out.println("📋 Asunto: " + notification.getSubject());
-            System.out.println("📝 Cuerpo: " + notification.getEmailBody());
-            System.out.println("---");
-        }
-        
-        System.out.println("=== NOTIFICACIONES DE REMOCIÓN ===");
-        for (INotificationService.EmailNotificationBody notification : removalNotifications) {
-            System.out.println("📧 Email para: " + notification.getUserEmail());
-            System.out.println("📋 Asunto: " + notification.getSubject());
-            System.out.println("📝 Cuerpo: " + notification.getEmailBody());
-            System.out.println("---");
-        }
-    }
-    
     /**
      * Genera notificaciones de asignación para la creación de un servicio
      */

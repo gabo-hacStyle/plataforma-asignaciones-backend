@@ -100,34 +100,7 @@ public class UserServiceImpl implements IUserService {
         return userUseCases.getUserByPhoneNumber(phoneNumber);
     }
     
-    // Funcionalidades específicas para las historias de usuario
-    @Override
-    public List<UserModel> getUsersByRole(UserModel.Role role) {
-        if (role == null) {
-            throw new IllegalArgumentException("Rol no puede ser null");
-        }
-        
-        List<UserModel> allUsers = userUseCases.getAllUsers();
-        return allUsers.stream()
-                .filter(user -> user.getRoles() != null && user.getRoles().contains(role))
-                .collect(Collectors.toList());
-    }
-    
-    @Override
-    public List<UserModel> getAvailableMusicians() {
-        List<UserModel> allUsers = userUseCases.getAllUsers();
-        return allUsers.stream()
-                .filter(user -> user.getRoles() != null && user.getRoles().contains(UserModel.Role.MUSICIAN))
-                .collect(Collectors.toList());
-    }
-    
-    @Override
-    public List<UserModel> getAvailableDirectors() {
-        List<UserModel> allUsers = userUseCases.getAllUsers();
-        return allUsers.stream()
-                .filter(user -> user.getRoles() != null && user.getRoles().contains(UserModel.Role.DIRECTOR))
-                .collect(Collectors.toList());
-    }
+
     
     // Consultas de servicios por usuario
     @Override
@@ -150,52 +123,9 @@ public class UserServiceImpl implements IUserService {
         return allServices;
     }
     
-    @Override
-    public List<ServiceModel> getUpcomingServicesForUser(String userId) {
-        validateUserId(userId);
-        validateUserExists(userId);
-        
-        List<ServiceModel> userServices = getServicesForUser(userId);
-        LocalDate today = LocalDate.now();
-        
-        return userServices.stream()
-                .filter(service -> service.getServiceDate() != null && 
-                                 !service.getServiceDate().isBefore(today))
-                .sorted((s1, s2) -> s1.getServiceDate().compareTo(s2.getServiceDate()))
-                .collect(Collectors.toList());
-    }
+
     
-    // Validaciones
-    @Override
-    public boolean isUserMusician(String userId) {
-        if (userId == null) {
-            return false;
-        }
-        
-        UserModel user = userUseCases.getUserById(userId);
-        return user != null && user.getRoles() != null && user.getRoles().contains(UserModel.Role.MUSICIAN);
-    }
-    
-    @Override
-    public boolean isUserDirector(String userId) {
-        if (userId == null) {
-            return false;
-        }
-        
-        UserModel user = userUseCases.getUserById(userId);
-        return user != null && user.getRoles() != null && user.getRoles().contains(UserModel.Role.DIRECTOR);
-    }
-    
-    @Override
-    public boolean isUserAdmin(String userId) {
-        if (userId == null) {
-            return false;
-        }
-        
-        UserModel user = userUseCases.getUserById(userId);
-        return user != null && user.getRoles() != null && user.getRoles().contains(UserModel.Role.ADMIN);
-    }
-    
+
     // Métodos privados para validación y optimización
     
     private void validateUserData(UserModel user) {

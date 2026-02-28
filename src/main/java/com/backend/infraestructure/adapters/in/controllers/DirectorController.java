@@ -2,6 +2,8 @@ package com.backend.infraestructure.adapters.in.controllers;
 
 import java.util.List;
 
+import com.backend.application.IDirectorService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +17,11 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/director")
 @RequiredArgsConstructor
+@Log4j2
 public class DirectorController {
     
     private final IServiceService serviceService;
+    private final IDirectorService directorService;
     
     @PostMapping("/{directorId}/services/{serviceId}/songs")
     public ResponseEntity<ServiceModel> createSongList(
@@ -25,7 +29,7 @@ public class DirectorController {
             @PathVariable String serviceId,
             @RequestBody List<CreateSongListRequest> songs) {
         try {
-            // Verificar que el director tiene permisos sobre este servicio
+
             if (!serviceService.isUserDirectorOfService(directorId, serviceId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
@@ -43,7 +47,7 @@ public class DirectorController {
             @PathVariable String serviceId,
             @RequestBody List<CreateSongListRequest> songs) {
         try {
-            // Verificar que el director tiene permisos sobre este servicio
+
             if (!serviceService.isUserDirectorOfService(directorId, serviceId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
@@ -55,22 +59,22 @@ public class DirectorController {
         }
     }
     
-    // Clases de response
-    
-    public static class DirectorPermissionsResponse {
-        private String directorId;
-        private String serviceId;
-        private boolean isDirectorOfService;
-        private boolean isAdmin;
-        
-        // Getters y setters
-        public String getDirectorId() { return directorId; }
-        public void setDirectorId(String directorId) { this.directorId = directorId; }
-        public String getServiceId() { return serviceId; }
-        public void setServiceId(String serviceId) { this.serviceId = serviceId; }
-        public boolean isDirectorOfService() { return isDirectorOfService; }
-        public void setIsDirectorOfService(boolean directorOfService) { isDirectorOfService = directorOfService; }
-        public boolean isAdmin() { return isAdmin; }
-        public void setIsAdmin(boolean admin) { isAdmin = admin; }
+    @PutMapping("/{directorId}/services/{serviceId}/clothes")
+    public ResponseEntity<ServiceModel> updateClothesColor(
+            @PathVariable String directorId,
+            @PathVariable String serviceId,
+            @RequestBody String clothesColor) {
+        try {
+
+            if (!serviceService.isUserDirectorOfService(directorId, serviceId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            ServiceModel updatedService = directorService.updateClothesColorForService(serviceId, clothesColor);
+            return ResponseEntity.ok(updatedService);
+        } catch (IllegalArgumentException e) {
+            log.info("❌ Error actualizando color de ropa  {}", e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
     }
-} 
+}

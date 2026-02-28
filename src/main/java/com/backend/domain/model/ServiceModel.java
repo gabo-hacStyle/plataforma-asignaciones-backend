@@ -20,4 +20,5 @@ public class ServiceModel {
     private String location;
     private String id;
     private LocalDateTime createdAt;
+    private String clothesColor;
 }

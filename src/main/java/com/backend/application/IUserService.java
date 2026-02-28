@@ -16,17 +16,9 @@ public interface IUserService {
     List<UserModel> getAllUsers();
     UserModel getUserByPhoneNumber(String phoneNumber);
     
-    // Funcionalidades específicas para las historias de usuario
-    List<UserModel> getUsersByRole(UserModel.Role role);
-    List<UserModel> getAvailableMusicians();
-    List<UserModel> getAvailableDirectors();
+
     
     // Consultas de servicios por usuario
     List<ServiceModel> getServicesForUser(String userId);
-    List<ServiceModel> getUpcomingServicesForUser(String userId);
-    
-    // Validaciones
-    boolean isUserMusician(String userId);
-    boolean isUserDirector(String userId);
-    boolean isUserAdmin(String userId);
+
 }

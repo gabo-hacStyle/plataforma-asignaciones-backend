@@ -12,6 +12,8 @@ import com.backend.infraestructure.adapters.out.entities.UserEntity;
 
 @Repository
 public interface UserRepository extends MongoRepository<UserEntity, String> {
+
+    List<UserEntity> findAllByOrderByNameAsc();
     
     Optional<UserEntity> findByEmail(String email);
     

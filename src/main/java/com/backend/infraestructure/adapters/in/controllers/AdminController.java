@@ -29,9 +29,6 @@ public class AdminController {
     @PostMapping
     public ResponseEntity<ServiceModel> createServiceWithAssignments(@RequestBody CreateServiceRequest request) {
         try {
-           
-            
-            
             ServiceModel createdService = serviceService.createServiceWithAssignments(
                 request.getServiceDate(),
                 request.getPracticeDate(),

@@ -3,9 +3,7 @@ package com.backend.application;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.backend.application.dto.CreateSongListRequest;
-import com.backend.application.dto.MusicianAssignment;
-import com.backend.application.dto.UpdateAssingmentRequest;
+import com.backend.application.dto.*;
 import com.backend.domain.model.ServiceModel;
 import com.backend.domain.model.UserModel;
 
@@ -15,6 +13,7 @@ public interface IServiceService {
     ServiceModel createService(ServiceModel service);
     ServiceModel createServiceWithAssignments(LocalDate serviceDate, LocalDate practiceDate, String location, 
                                            List<String> directorIds, List<MusicianAssignment> musicianAssignments);
+    OCRResponseDTO createServiceWithOCR(List<OCRRequestInfoDTO> requests);
     List<UserModel> getAllMusicians();
     ServiceModel assignDirectorsToService(String serviceId, List<String> directorIds);
     ServiceModel assignMusiciansToService(String serviceId, List<MusicianAssignment> musicianAssignments);

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,8 +39,8 @@ public class NotificationServiceImpl implements INotificationService {
         
         // Procesar directores asignados
         if (newAssignments.getDirectorIds() != null) {
-            Set<String> oldDirectorIds = oldAssignments.getDirectorIds() != null ? 
-                oldAssignments.getDirectorIds().stream().collect(Collectors.toSet()) : 
+            Set<String> oldDirectorIds = oldAssignments.getDirectorIds() != null ?
+                    new HashSet<>(oldAssignments.getDirectorIds()) :
                 Set.of();
             
             for (String directorId : newAssignments.getDirectorIds()) {
@@ -62,23 +63,26 @@ public class NotificationServiceImpl implements INotificationService {
         if (newAssignments.getMusiciansList() != null) {
             Set<String> oldMusicianIds = oldAssignments.getMusiciansList() != null ? 
                 oldAssignments.getMusiciansList().stream()
-                    .map(MusicianAssignment::getMusicianId)
+                    .flatMap(assignment -> assignment.getMusicianIds().stream())
                     .collect(Collectors.toSet()) : 
                 Set.of();
             
             for (MusicianAssignment assignment : newAssignments.getMusiciansList()) {
-                if (!oldMusicianIds.contains(assignment.getMusicianId())) {
-                    // Nuevo músico asignado
-                    UserModel musician = userUseCases.getUserById(assignment.getMusicianId());
-                    if (musician != null) {
-                        EmailNotificationBody notification = createMusicianAssignmentEmail(service, musician, assignment.getInstrument());
-                        notifications.add(notification);
-                        
-                        // Crear mensaje para la cola
-                        NotificationMessage queueMessage = createNotificationMessage(notification, service, NotificationMessage.NotificationCategory.ASSIGNMENT);
-                        queueMessages.add(queueMessage);
-                    }
-                }
+
+               for (String musicianId : assignment.getMusicianIds()) {
+                   if(!oldMusicianIds.contains(musicianId)) {
+                       // Nuevo músico asignado
+                       UserModel musician = userUseCases.getUserById(musicianId);
+                       if (musician != null) {
+                           EmailNotificationBody notification = createMusicianAssignmentEmail(service, musician, assignment.getInstrument());
+                           notifications.add(notification);
+
+                           // Crear mensaje para la cola
+                           NotificationMessage queueMessage = createNotificationMessage(notification, service, NotificationMessage.NotificationCategory.ASSIGNMENT);
+                           queueMessages.add(queueMessage);
+                       }
+                   }
+               }
             }
         }
         
@@ -125,21 +129,24 @@ public class NotificationServiceImpl implements INotificationService {
         if (oldAssignments.getMusiciansList() != null) {
             Set<String> newMusicianIds = newAssignments.getMusiciansList() != null ? 
                 newAssignments.getMusiciansList().stream()
-                    .map(MusicianAssignment::getMusicianId)
+                    .flatMap(assignment -> assignment.getMusicianIds().stream())
                     .collect(Collectors.toSet()) : 
                 Set.of();
             
             for (MusicianAssignment assignment : oldAssignments.getMusiciansList()) {
-                if (!newMusicianIds.contains(assignment.getMusicianId())) {
-                    // Músico removido
-                    UserModel musician = userUseCases.getUserById(assignment.getMusicianId());
-                    if (musician != null) {
-                        EmailNotificationBody notification = createMusicianRemovalEmail(service, musician, assignment.getInstrument());
-                        notifications.add(notification);
-                        
-                        // Crear mensaje para la cola
-                        NotificationMessage queueMessage = createNotificationMessage(notification, service, NotificationMessage.NotificationCategory.REMOVAL);
-                        queueMessages.add(queueMessage);
+
+                for (String musicianId : assignment.getMusicianIds()) {
+                    if (!newMusicianIds.contains(musicianId)) {
+                        // Músico removido
+                        UserModel musician = userUseCases.getUserById(musicianId);
+                        if (musician != null) {
+                            EmailNotificationBody notification = createMusicianRemovalEmail(service, musician, assignment.getInstrument());
+                            notifications.add(notification);
+
+                            // Crear mensaje para la cola
+                            NotificationMessage queueMessage = createNotificationMessage(notification, service, NotificationMessage.NotificationCategory.REMOVAL);
+                            queueMessages.add(queueMessage);
+                        }
                     }
                 }
             }

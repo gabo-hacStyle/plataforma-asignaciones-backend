@@ -66,7 +66,7 @@ public class UserUseCasesImpl implements UserUseCases {
     
     @Override
     public List<UserModel> getAllUsers() {
-        List<UserEntity> userEntities = userRepository.findAll();
+        List<UserEntity> userEntities = userRepository.findAllByOrderByNameAsc();
         return userEntities.stream()
                 .map(UserEntity::toDomain)
                 .collect(Collectors.toList());

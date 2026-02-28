@@ -4,8 +4,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.backend.application.dto.*;
 import org.springframework.stereotype.Service;
 import com.backend.application.INotificationService;
 import com.backend.application.IServiceService;
@@ -14,14 +16,12 @@ import com.backend.domain.port.UserUseCases;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.backend.application.dto.CreateSongListRequest;
-import com.backend.application.dto.MusicianAssignment;
-import com.backend.application.dto.UpdateAssingmentRequest;
 import com.backend.domain.model.MusiciansList;
 import com.backend.domain.model.ServiceModel;
 import com.backend.domain.model.SongsModel;
 import com.backend.domain.model.UserModel;
 import com.backend.domain.port.ServicesUseCases;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -57,72 +57,90 @@ public class ServiceServiceImpl implements IServiceService {
     }
     
     @Override
+    @Transactional
     public ServiceModel createServiceWithAssignments(LocalDate serviceDate, LocalDate practiceDate, String location,
                                                    List<String> directorIds, List<MusicianAssignment> musicianAssignments) {
-        // Validar parámetros básicos
-        if (serviceDate == null) {
-            throw new IllegalArgumentException("La fecha del servicio no puede ser null");
-        }
-        if (location == null || location.trim().isEmpty()) {
-            throw new IllegalArgumentException("La ubicación no puede estar vacía");
-        }
-        
-        // Crear el servicio base
-        ServiceModel service = new ServiceModel();
-        service.setServiceDate(serviceDate);
-        service.setPracticeDate(practiceDate);
-        service.setLocation(location);
-        service.setCreatedAt(LocalDateTime.now());
-        
-        // Asignar directores
-        if (directorIds != null && !directorIds.isEmpty()) {
-            List<UserModel> directors = new ArrayList<>();
-            for (String directorId : directorIds) {
-                UserModel director = userUseCases.getUserById(directorId);
-                if (director == null) {
-                    throw new IllegalArgumentException("Director no encontrado: " + directorId);
-                }
-                
-                // Añadir rol DIRECTOR si no lo tiene ya
-                if (director.getRoles() == null) {
-                    director.setRoles(new ArrayList<>());
-                }
-                if (!director.getRoles().contains(UserModel.Role.DIRECTOR)) {
-                    director.getRoles().add(UserModel.Role.DIRECTOR);
-                    userUseCases.updateUser(director);
-                }
-                
-                directors.add(director);
+        try{
+            // Validar parámetros básicos
+            if (serviceDate == null) {
+                throw new IllegalArgumentException("La fecha del servicio no puede ser null");
             }
-            service.setDirectors(directors);
-        }
-        
-        // Asignar músicos con instrumentos
-        if (musicianAssignments != null && !musicianAssignments.isEmpty()) {
-            List<MusiciansList> musiciansList = new ArrayList<>();
-            for (MusicianAssignment assignment : musicianAssignments) {
-                UserModel musician = userUseCases.getUserById(assignment.getMusicianId());
-                if (musician == null) {
-                    throw new IllegalArgumentException("Músico no encontrado: " + assignment.getMusicianId());
-                }
-                
-                MusiciansList musicianAssignment = new MusiciansList();
-                musicianAssignment.setMusician(musician);
-                musicianAssignment.setInstrument(assignment.getInstrument());
-                musiciansList.add(musicianAssignment);
+            if (location == null || location.trim().isEmpty()) {
+                throw new IllegalArgumentException("La ubicación no puede estar vacía");
             }
-            service.setMusiciansList(musiciansList);
+
+            // Crear el servicio base
+            ServiceModel service = new ServiceModel();
+            service.setServiceDate(serviceDate);
+            service.setPracticeDate(practiceDate);
+            service.setLocation(location);
+            service.setCreatedAt(LocalDateTime.now());
+
+            // Asignar directores
+            if (directorIds != null && !directorIds.isEmpty()) {
+                List<UserModel> directors = new ArrayList<>();
+                for (String directorId : directorIds) {
+                    UserModel director = userUseCases.getUserById(directorId);
+                    if (director == null) {
+                        throw new IllegalArgumentException("Director no encontrado: " + directorId);
+                    }
+
+                    // Añadir rol DIRECTOR si no lo tiene ya
+                    if (director.getRoles() == null) {
+                        director.setRoles(new ArrayList<>());
+                    }
+                    if (!director.getRoles().contains(UserModel.Role.DIRECTOR)) {
+                        director.getRoles().add(UserModel.Role.DIRECTOR);
+                        userUseCases.updateUser(director);
+                    }
+
+                    directors.add(director);
+                }
+                service.setDirectors(directors);
+            }
+
+            // Asignar músicos con instrumentos
+            if (musicianAssignments != null && !musicianAssignments.isEmpty()) {
+                List<MusiciansList> musiciansList = new ArrayList<>();
+                for (MusicianAssignment assignment : musicianAssignments) {
+                    List<UserModel> musicians = assignment.getMusicianIds().stream()
+                            .map(id -> {
+                                UserModel user = userUseCases.getUserById(id);
+                                if (user == null) {
+                                    throw new IllegalArgumentException("No se encontró el músico con id: " + id);
+                                }
+                                return user;
+                            })
+                            .toList();
+
+
+                    MusiciansList musicianAssignment = new MusiciansList();
+                    musicianAssignment.setMusician(musicians);
+                    musicianAssignment.setInstrument(assignment.getInstrument());
+                    musiciansList.add(musicianAssignment);
+                }
+                service.setMusiciansList(musiciansList);
+            }
+
+            // Crear el servicio en la base de datos
+            ServiceModel createdService = servicesUseCases.createService(service);
+
+            // Generar notificaciones de asignación para la creación del servicio
+            generateCreationNotifications(createdService, directorIds, musicianAssignments);
+
+            return createdService;
+        } catch (Exception e){
+            log.error("❌ Error creando servicio con asignaciones: {}", e.getMessage());
+            throw e;
         }
-        
-        // Crear el servicio en la base de datos
-        ServiceModel createdService = servicesUseCases.createService(service);
-        
-        // Generar notificaciones de asignación para la creación del servicio
-        generateCreationNotifications(createdService, directorIds, musicianAssignments);
-        
-        return createdService;
     }
-    
+
+    @Override
+    public OCRResponseDTO createServiceWithOCR(List<OCRRequestInfoDTO> requests) {
+        return null;
+    }
+
+
     @Override
     public List<UserModel> getAllMusicians() {
         List<UserModel> allUsers = userUseCases.getAllUsers();
@@ -162,6 +180,7 @@ public class ServiceServiceImpl implements IServiceService {
     }
     
         @Override
+        @Transactional
         public ServiceModel assignMusiciansToService(String serviceId, List<MusicianAssignment> musicianAssignments) {
         validateServiceExists(serviceId);
        
@@ -170,13 +189,18 @@ public class ServiceServiceImpl implements IServiceService {
         List<MusiciansList> musiciansList = new ArrayList<>();
         
         for (MusicianAssignment assignment : musicianAssignments) {
-            UserModel musician = userUseCases.getUserById(assignment.getMusicianId());
-            if (musician == null) {
-                throw new IllegalArgumentException("Músico no encontrado: " + assignment.getMusicianId());
-            }
-            
+            List<UserModel> musicians = assignment.getMusicianIds().stream()
+                    .map(id -> {
+                        UserModel user = userUseCases.getUserById(id);
+                        if (user == null) {
+                            throw new IllegalArgumentException("No se encontró el músico con id: " + id);
+                        }
+                        return user;
+                    })
+                    .toList();
+
             MusiciansList musicianAssignment = new MusiciansList();
-            musicianAssignment.setMusician(musician);
+            musicianAssignment.setMusician(musicians);
             musicianAssignment.setInstrument(assignment.getInstrument());
             musiciansList.add(musicianAssignment);
         }

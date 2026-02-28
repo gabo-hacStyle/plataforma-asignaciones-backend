@@ -101,8 +101,13 @@ public class ReminderServiceImpl implements IReminderService {
             // Enviar recordatorios a músicos
             if (service.getMusiciansList() != null && !service.getMusiciansList().isEmpty()) {
                 for (var musicianAssignment : service.getMusiciansList()) {
-                    sendMusicianReminder(musicianAssignment.getMusician(), 
-                                       musicianAssignment.getInstrument(), service);
+                    // Iterar sobre cada músico en la lista del instrumento
+                    if (musicianAssignment.getMusician() != null && !musicianAssignment.getMusician().isEmpty()) {
+                        for (UserModel musician : musicianAssignment.getMusician()) {
+                            sendMusicianReminder(musician,
+                                               musicianAssignment.getInstrument(), service);
+                        }
+                    }
                 }
             }
             
@@ -160,7 +165,7 @@ public class ReminderServiceImpl implements IReminderService {
     /**
      * Crea y envía la notificación de recordatorio
      */
-    private void createReminderNotification(UserModel user, String subject, 
+    private void createReminderNotification(UserModel user, String subject,
                                          ServiceModel service, String role) {
         try {
             // Crear mensaje de notificación
